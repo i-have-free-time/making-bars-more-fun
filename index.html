@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Dare Game</title>
+<style>
+
+body {
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #fff, #fff5ec);
+    color: #ff7a00;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    width: 90%;
+    max-width: 420px;
+    background: white;
+    border-radius: 25px;
+    padding: 30px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+    text-align: center;
+    animation: popIn 0.5s ease;
+}
+
+@keyframes popIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+h1 { margin-bottom: 10px; }
+
+input, textarea {
+    width: 90%;
+    padding: 12px;
+    border-radius: 12px;
+    border: 2px solid #ff7a00;
+    margin-top: 10px;
+    font-size: 16px;
+}
+
+button {
+    margin-top: 20px;
+    padding: 12px 20px;
+    border-radius: 15px;
+    border: none;
+    background: #ff7a00;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: transform 0.2s ease, opacity 0.2s;
+}
+
+button:active {
+    transform: scale(0.95);
+}
+
+.hidden { display: none; }
+
+.result {
+    margin-top: 20px;
+    padding: 15px;
+    background: #fff5ec;
+    border-radius: 15px;
+    font-size: 18px;
+    animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.big {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- SETUP -->
+    <div id="setup">
+        <h1>🎉 Dare Game</h1>
+        <p>How many players?</p>
+        <input id="players" type="number" min="1">
+        <button onclick="start()">Start</button>
+    </div>
+
+    <!-- GAME -->
+    <div id="game" class="hidden">
+        <h1>🎲 Tap</h1>
+        <button onclick="generate()">Generate</button>
+        <div id="result" class="result hidden"></div>
+    </div>
+
+    <!-- CUSTOM INPUT -->
+    <div id="custom" class="hidden">
+        <h1>📝 New Dares</h1>
+        <p>Enter dares (one per line)</p>
+        <textarea id="customInput" rows="6"></textarea>
+        <button onclick="loadCustom()">Load Dares</button>
+    </div>
+
+</div>
+
+<script>
+
+let playerCount = 0;
+
+let defaultGroup = [
+"Start a dance circle and go stoopid for whoever joins",
+"Start a conga line",
+"Swap items with people of the opposite sex in the group and take a group selfie"
+];
+
+let defaultIndividual = [
+"Ask bartender for number even if they’re clapped",
+"Text the most recent guy in ur dms wyd tonight",
+"Dance like a viral video in the middle of the dangler",
+"Ask the bartender for their number",
+"Join a random group on the dance floor",
+"Ask a stranger to pour a drink down ur mouth",
+"DM a random compliment on insta",
+"Narrate a vlog for two minutes",
+"Take a photo with a bartender",
+"Order drinks dramatically (no paying)"
+];
+
+let groupDares = [...defaultGroup];
+let individualDares = [...defaultIndividual];
+
+function start() {
+    playerCount = parseInt(document.getElementById("players").value);
+    if (!playerCount || playerCount < 1) return alert("Enter players");
+
+    document.getElementById("setup").classList.add("hidden");
+    document.getElementById("game").classList.remove("hidden");
+}
+
+function generate() {
+
+    if (groupDares.length === 0 && individualDares.length === 0) {
+        document.getElementById("game").classList.add("hidden");
+        document.getElementById("custom").classList.remove("hidden");
+        return;
+    }
+
+    const pick = Math.floor(Math.random() * (playerCount + 1)) + 1;
+    let text = "";
+
+    if (pick === playerCount + 1 && groupDares.length > 0) {
+        const i = Math.floor(Math.random() * groupDares.length);
+        const dare = groupDares.splice(i, 1)[0];
+        text = `<div class="big">👥 GROUP</div>${dare}`;
+    } else {
+        if (individualDares.length === 0) return generate();
+        const i = Math.floor(Math.random() * individualDares.length);
+        const dare = individualDares.splice(i, 1)[0];
+        text = `<div class="big">🎯 Player ${pick}</div>${dare}`;
+    }
+
+    const box = document.getElementById("result");
+    box.innerHTML = text;
+    box.classList.remove("hidden");
+
+    // auto next round after 3 sec
+    setTimeout(() => {
+        box.classList.add("hidden");
+    }, 3000);
+}
+
+function loadCustom() {
+    const input = document.getElementById("customInput").value.trim();
+    if (!input) return;
+
+    const lines = input.split("\n").filter(l => l.trim() !== "");
+
+    individualDares = [...lines];
+    groupDares = [];
+
+    document.getElementById("custom").classList.add("hidden");
+    document.getElementById("game").classList.remove("hidden");
+}
+
+</script>
+
+</body>
+</html>
